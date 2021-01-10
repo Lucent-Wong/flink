@@ -68,6 +68,21 @@ sed -i -e ''$(($position + 1))'i\
 
 sed -i -e "s/org.apache.flink.quickstart.StreamingJob/org.apache.flink.quickstart.$TEST_CLASS_NAME/" pom.xml
 
+case $PROFILE in
+*"scala-2.12"*)
+  echo "Changing scala version"
+  sed -i -e "s/scala.binary.version>2.11<\/scala.binary/scala.binary.version>2.12<\/scala.binary/" pom.xml
+  # for flink-quickstart-scala, also change scala version
+  sed -i -e "s/scala.version>2.11.12<\/scala.ver/scala.version>2.12.7<\/scala.ver/" pom.xml
+  ;;
+*"scala-2.11"*)
+  # all good
+  ;;
+*"scala-"*)
+  echo "UNSUPPORTED SCALA VERSION"
+  exit 1
+esac
+
 run_mvn clean package
 
 cd target
@@ -95,7 +110,7 @@ else
     echo "Success: Elasticsearch5SinkExample.class and other user classes are included in the jar."
 fi
 
-setup_elasticsearch "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.3.tar.gz"
+setup_elasticsearch "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.3.tar.gz" 5
 wait_elasticsearch_working
 
 function shutdownAndCleanup {
